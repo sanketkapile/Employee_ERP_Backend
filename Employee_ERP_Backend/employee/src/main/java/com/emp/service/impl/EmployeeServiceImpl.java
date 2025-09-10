@@ -20,12 +20,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCreatedAt(LocalDateTime.now());
         employee.setUpdatedAt(LocalDateTime.now());
         employee.setEmployed(true);
-        return employeeRepository.save(employee);
-    }
-
-    @Override
-    public Employee findByEmpId(Integer empId) {
-        Employee employee = employeeRepository.findByEmpId(empId);
+        employeeRepository.save(employee);
         return employee;
     }
 
