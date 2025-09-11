@@ -9,13 +9,14 @@ import java.util.List;
 public interface EmployeeService {
 
     Employee save(Employee employee);
-    //Employee findByEmpId(Integer empId);
+    Employee findByEmpId(String employeeId);
+    List<Employee> saveAll(List<Employee> employees);
     List<Employee> findAll();
     List<Employee> findByEmployeeDepartment(String employeeDepartment);
     List<Employee> findByEmployeeName(String employeeName);
     List<Employee> findByEmployeeEmail(String employeeEmail);
     List<Employee> findByPhoneNumber(Long employeePhoneNumber);
-    Employee updateEmployeeDepartmentById(Integer id, String department);
-    Employee updateEmployeeSalaryById(Integer id, Double salary);
-    Employee updateEmployeeRoleById(Integer id, String role);
+    Employee updateEmployeeDepartmentById(String id, String department);
+    Employee updateEmployeeSalaryById(String id, Double incrementSalary);
+    Employee updateEmployeeRoleById(String id, String role);
 }

@@ -4,8 +4,9 @@ import com.emp.entity.Employee;
 import com.emp.repository.EmployeeRepository;
 import com.emp.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,13 +16,39 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
+
+    public EmployeeServiceImpl(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = new BCryptPasswordEncoder(); // encode here
+    }
+
     @Override
     public Employee save(Employee employee) {
+        String encodePassword = passwordEncoder.encode(employee.getEmpPassword());
+        employee.setEmpPassword(encodePassword);
         employee.setCreatedAt(LocalDateTime.now());
         employee.setUpdatedAt(LocalDateTime.now());
         employee.setEmployed(true);
         employeeRepository.save(employee);
         return employee;
+    }
+
+    @Override
+    public Employee findByEmpId(String employeeId) {
+        return employeeRepository.findByEmpId(employeeId);
+    }
+
+    @Override
+    public List<Employee> saveAll(List<Employee> employees) {
+        for (Employee employee : employees) {
+            String encodePassword = passwordEncoder.encode(employee.getEmpPassword());
+            employee.setEmpPassword(encodePassword);
+            employee.setCreatedAt(LocalDateTime.now());
+            employee.setUpdatedAt(LocalDateTime.now());
+            employee.setEmployed(true);
+        }
+        return employeeRepository.saveAll(employees);
     }
 
     @Override
@@ -50,25 +77,30 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee updateEmployeeDepartmentById(Integer id, String department) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
-
+    public Employee updateEmployeeDepartmentById(String id, String department) {
+        Employee employee = employeeRepository.findByEmpId(id);
         employee.setDepartment(department);
         employee.setUpdatedAt(LocalDateTime.now());
         return employeeRepository.save(employee);
     }
 
     @Override
-    public Employee updateEmployeeSalaryById(Integer id, Double salary) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
-        employee.setEmpSalary(salary);
-        employee.setUpdatedAt(LocalDateTime.now());
-        return employeeRepository.save(employee);
+    public Employee updateEmployeeSalaryById(String id, Double incrementSalary) {
+        Employee employee = employeeRepository.findByEmpId(id);
+        if (incrementSalary <= 0) {
+            throw new RuntimeException("Salary cannot be negative");
+        }
+        else {
+            Double updatedSalary = (employee.getEmpSalary() * incrementSalary)/100;
+            employee.setEmpSalary(employee.getEmpSalary() + updatedSalary);
+            employee.setUpdatedAt(LocalDateTime.now());
+            return employeeRepository.save(employee);
+        }
     }
 
     @Override
-    public Employee updateEmployeeRoleById(Integer id, String role) {
-        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+    public Employee updateEmployeeRoleById(String id, String role) {
+        Employee employee = employeeRepository.findByEmpId(id);
         employee.setEmpRole(role);
         employee.setUpdatedAt(LocalDateTime.now());
         return employeeRepository.save(employee);

@@ -19,8 +19,7 @@ import java.time.LocalDateTime;
 public class Employee {
 
     @Id
-    @Field("Employee_Id")
-    private Integer empId;
+    private String empId;
 
     @Field("Employee_Name")
     @NotNull
@@ -64,12 +63,10 @@ public class Employee {
 
     @CreatedDate
     @Field("Created_At")
-    @NotNull
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Field("Updated_At")
-    @NotNull
     private LocalDateTime updatedAt;
 
 }

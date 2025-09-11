@@ -6,8 +6,6 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -17,22 +15,19 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
-    //@Autowired
-    private final PasswordEncoder passwordEncoder;
-
-
-    public EmployeeController(EmployeeService employeeService, PasswordEncoder passwordEncoder) {
-        this.employeeService = employeeService;
-        this.passwordEncoder = new BCryptPasswordEncoder(); // encode here
-    }
 
     //Save New Employee
     @PostMapping("/register")
     public ResponseEntity<Employee> addEmployee(@Valid @RequestBody Employee employee) {
-        String encodePassword = passwordEncoder.encode(employee.getEmpPassword());
-        employee.setEmpPassword(encodePassword);
         Employee savedEmployee = employeeService.save(employee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+    }
+
+    //Save Bulk Employees
+    @PostMapping("/registerAll")
+    public ResponseEntity<List<Employee>> registerAllEmployees(@RequestBody List<Employee> employees) {
+        List<Employee> savedEmployees = employeeService.saveAll(employees);
+        return new ResponseEntity<>(savedEmployees, HttpStatus.CREATED);
     }
 
     //Find All Employee List
@@ -40,6 +35,13 @@ public class EmployeeController {
     public ResponseEntity<List<Employee>> displayEmployee() {
         List<Employee> employees = employeeService.findAll();
         return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+    //Find Employee by ID
+    @GetMapping("/user/{employeeId}")
+    public ResponseEntity<Employee> displayEmployeeById(@PathVariable String employeeId) {
+        Employee employee = employeeService.findByEmpId(employeeId);
+        return new ResponseEntity<>(employee, HttpStatus.OK);
     }
 
     //List all the employees in the department
@@ -79,7 +81,7 @@ public class EmployeeController {
         }
     }
 
-    //List all the employees with same phone number
+    //List all the employees with the same phone number
     @GetMapping("/contact/{employeePhoneNumber}")
     public ResponseEntity<List<Employee>> displayEmployeeByContactNo(@PathVariable Long employeePhoneNumber) {
         try{
@@ -93,7 +95,7 @@ public class EmployeeController {
 
     //Update employee salary by employee id
     @PutMapping("/update/{employeeId}/sal/{empSalary}")
-    public ResponseEntity<Employee> updateEmployeeSalaryById(@PathVariable Integer employeeId,
+    public ResponseEntity<Employee> updateEmployeeSalaryById(@PathVariable String employeeId,
                                                              @PathVariable Double empSalary) {
         try{
             Employee employee = employeeService.updateEmployeeSalaryById(employeeId,empSalary);
@@ -106,7 +108,7 @@ public class EmployeeController {
 
     //Update department by employee id
     @PutMapping("/update/{employeeId}/dept/{department}")
-    public ResponseEntity<Employee> updateEmployeeSalaryById(@PathVariable Integer employeeId,
+    public ResponseEntity<Employee> updateEmployeeSalaryById(@PathVariable String employeeId,
                                                              @PathVariable String department) {
         try{
             Employee employee = employeeService.updateEmployeeDepartmentById(employeeId,department);
@@ -117,9 +119,9 @@ public class EmployeeController {
         }
     }
 
-    //Update employee role by employee id
+    //Update an employee role by employee id
     @PutMapping("/update/{employeeId}/role/{role}")
-    public ResponseEntity<Employee> updateEmployeeRoleById(@PathVariable Integer employeeId,
+    public ResponseEntity<Employee> updateEmployeeRoleById(@PathVariable String employeeId,
                                                              @PathVariable String role) {
         try{
             Employee employee = employeeService.updateEmployeeRoleById(employeeId,role);

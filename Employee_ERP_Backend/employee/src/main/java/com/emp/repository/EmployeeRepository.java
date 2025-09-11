@@ -8,7 +8,7 @@ import java.util.List;
 //@Repository
 public interface EmployeeRepository extends MongoRepository<Employee, Integer> {
 
-    Employee findByEmpId(Integer employeeId);
+    Employee findByEmpId(String employeeId);
     List<Employee> findByEmpName(String empName);
     List<Employee> findByEmpEmail(String empEmail);
     List<Employee> findByEmpContactNumber(Long empContactNumber);
